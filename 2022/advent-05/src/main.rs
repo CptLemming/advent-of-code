@@ -7,8 +7,8 @@ use regex::Regex;
 
 fn main() {
     // read in file
-    let file = File::open("test.txt").expect("Failed to open file");
-    // let file = File::open("moves.txt").expect("Failed to open file");
+    // let file = File::open("test.txt").expect("Failed to open file");
+    let file = File::open("moves.txt").expect("Failed to open file");
     let reader = BufReader::new(file);
 
     let mut buffer: Vec<Vec<String>> = Vec::new();
@@ -62,12 +62,31 @@ fn main() {
                         // move 24 from 2 to 3
                         let caps = re.captures(line.as_str()).unwrap();
 
-                        println!(" Move {} from {} to {}", &caps["crate"], &caps["from"], &caps["to"]);
+                        println!(
+                            " Move {} from {} to {}",
+                            &caps["crate"], &caps["from"], &caps["to"]
+                        );
 
-                        let src = crates.get_mut(0).unwrap();
-                        let dst = crates.get_mut(1).unwrap();
+                        let src = crates
+                            .get_mut(caps["from"].parse::<usize>().unwrap() - 1)
+                            .unwrap();
+                        let mut middle = Vec::new();
 
-                        // src.
+                        for _ in 0..(&caps["crate"]).parse::<u32>().unwrap() {
+                            let el = src.remove(0);
+
+                            middle.push(el);
+                        }
+                        let dst = crates
+                            .get_mut(caps["to"].parse::<usize>().unwrap() - 1)
+                            .unwrap();
+
+                        // Step 2 only
+                        middle.reverse();
+
+                        for item in middle {
+                            dst.insert(0, item);
+                        }
                     }
                     _ => {}
                 }
