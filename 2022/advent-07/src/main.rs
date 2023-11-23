@@ -8,6 +8,8 @@ fn main() {
 
     let mut result = 0;
 
+    let total_disk_size = 70000000;
+    let required_disk_size = 30000000;
     let mut directories: HashMap<String, EntryDirectory> = HashMap::new();
     let mut reference: Vec<String> = vec![];
 
@@ -113,20 +115,30 @@ fn main() {
         }
     }
 
+    result = directories.get("/").unwrap().get_size();
+    let required_free = total_disk_size - result;
+    println!("required_free {}", required_free);
+
     for dir in directories.values() {
         let size = dir.get_size();
 
-        if size < 100_000 {
-            println!("{} is {}", dir.name, size);
-            result += size;
+        // part 2
+        if required_free + size > required_disk_size && size < result {
+            result = size;
         }
+
+        // part 1
+        // if size < 100_000 {
+        //     println!("{} is {}", dir.name, size);
+        //     result += size;
+        // }
     }
 
     println!("Dir -> {:?}", directories);
     println!("Result : {}", result);
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct EntryDirectory {
     name: String,
     children: Vec<EntryFile>,
