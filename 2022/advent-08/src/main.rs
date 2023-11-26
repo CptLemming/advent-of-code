@@ -35,100 +35,173 @@ fn main() {
     let row_size = buffer.len();
     let mut result = 0;
 
-    // North
-    let mut north_max: Vec<u8> = vec![0; col_size];
-    for (i, row) in buffer.iter().enumerate() {
-        for (j, column) in row.iter().enumerate() {
-            let mut max = north_max.get_mut(j).unwrap();
-            let mut item = column.borrow_mut();
+    // // North
+    // let mut north_max: Vec<u8> = vec![0; col_size];
+    // for (i, row) in buffer.iter().enumerate() {
+    //     for (j, column) in row.iter().enumerate() {
+    //         let mut max = north_max.get_mut(j).unwrap();
+    //         let mut item = column.borrow_mut();
 
-            if i == 0 {
-                item.visible_north();
-                *max = item.height;
-                continue;
+    //         if i == 0 {
+    //             item.visible_north();
+    //             *max = item.height;
+    //             continue;
+    //         }
+
+    //         if &item.height > max {
+    //             item.visible_north();
+    //             *max = item.height;
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    // // East
+    // let mut east_max: Vec<u8> = vec![0; row_size];
+    // for (i, row) in buffer.iter().enumerate() {
+    //     for (j, column) in row.iter().enumerate().rev() {
+    //         let mut max = east_max.get_mut(i).unwrap();
+    //         let mut item = column.borrow_mut();
+
+    //         if j == (col_size - 1) {
+    //             item.visible_east();
+    //             *max = item.height;
+    //             continue;
+    //         }
+
+    //         if &item.height > max {
+    //             item.visible_east();
+    //             *max = item.height;
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    // // South
+    // let mut south_max: Vec<u8> = vec![0; row_size];
+    // for (i, row) in buffer.iter().enumerate().rev() {
+    //     for (j, column) in row.iter().enumerate() {
+    //         let mut max = south_max.get_mut(j).unwrap();
+    //         let mut item = column.borrow_mut();
+
+    //         if i == (row_size - 1) {
+    //             item.visible_south();
+    //             *max = item.height;
+    //             continue;
+    //         }
+
+    //         if &item.height > max {
+    //             item.visible_south();
+    //             *max = item.height;
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    // // West
+    // let mut west_max: Vec<u8> = vec![0; col_size];
+    // for (i, row) in buffer.iter().enumerate() {
+    //     for (j, column) in row.iter().enumerate() {
+    //         let mut max = west_max.get_mut(i).unwrap();
+    //         let mut item = column.borrow_mut();
+
+    //         if j == 0 {
+    //             item.visible_west();
+    //             *max = item.height;
+    //             continue;
+    //         }
+
+    //         if &item.height > max {
+    //             item.visible_west();
+    //             *max = item.height;
+    //             continue;
+    //         }
+    //     }
+    // }
+
+    // // Results
+    // for row in buffer.iter() {
+    //     for cell in row {
+    //         // println!("Cell = {:?}", cell);
+    //         print!("{}", cell.borrow().as_color());
+    //         if cell.borrow().is_visible() {
+    //             result += 1;
+    //         }
+    //     }
+    //     println!("");
+    // }
+
+    for (o_i, o_row) in buffer.iter().enumerate() {
+        for (o_j, o_col) in o_row.iter().enumerate() {
+            let mut item = o_col.borrow_mut();
+
+            // North
+            let mut north = 0;
+            for i_i in (0..o_i).rev() {
+                // println!("Range {o_i},{o_j} = {}", i_i);
+                let i_row = buffer.get(i_i).unwrap();
+                let i_col = i_row.get(o_j).unwrap().borrow();
+
+                north += 1;
+
+                if i_col.height >= item.height {
+                    break;
+                }
             }
 
-            if &item.height > max {
-                item.visible_north();
-                *max = item.height;
-                continue;
+            // East
+            let mut east = 0;
+            for i_j in (o_j + 1)..col_size {
+                // println!("Ran {}", i_j);
+                let i_row = buffer.get(o_i).unwrap();
+                let i_col = i_row.get(i_j).unwrap().borrow();
+
+                east += 1;
+
+                if i_col.height >= item.height {
+                    break;
+                }
             }
+
+            // South
+            let mut south = 0;
+            for i_i in (o_i + 1)..row_size {
+                // println!("Ran {}", i_i);
+                let i_row = buffer.get(i_i).unwrap();
+                let i_col = i_row.get(o_j).unwrap().borrow();
+
+                south += 1;
+
+                if i_col.height >= item.height {
+                    break;
+                }
+            }
+
+            // West
+            let mut west = 0;
+            for i_j in (0..o_j).rev() {
+                // println!("Ran {}", i_i);
+                let i_row = buffer.get(o_i).unwrap();
+                let i_col = i_row.get(i_j).unwrap().borrow();
+
+                west += 1;
+
+                if i_col.height >= item.height {
+                    break;
+                }
+            }
+
+            println!("{},{} {} = {},{},{},{}", o_i, o_j, item.height, north, east, south, west);
+            item.set_weight(north * east * south * west);
         }
     }
 
-    // East
-    let mut east_max: Vec<u8> = vec![0; row_size];
-    for (i, row) in buffer.iter().enumerate() {
-        for (j, column) in row.iter().enumerate().rev() {
-            let mut max = east_max.get_mut(i).unwrap();
-            let mut item = column.borrow_mut();
-
-            if j == (col_size - 1) {
-                item.visible_east();
-                *max = item.height;
-                continue;
-            }
-
-            if &item.height > max {
-                item.visible_east();
-                *max = item.height;
-                continue;
-            }
-        }
-    }
-
-    // South
-    let mut south_max: Vec<u8> = vec![0; row_size];
-    for (i, row) in buffer.iter().enumerate().rev() {
-        for (j, column) in row.iter().enumerate() {
-            let mut max = south_max.get_mut(j).unwrap();
-            let mut item = column.borrow_mut();
-
-            if i == (row_size - 1) {
-                item.visible_south();
-                *max = item.height;
-                continue;
-            }
-
-            if &item.height > max {
-                item.visible_south();
-                *max = item.height;
-                continue;
-            }
-        }
-    }
-
-    // West
-    let mut west_max: Vec<u8> = vec![0; col_size];
-    for (i, row) in buffer.iter().enumerate() {
-        for (j, column) in row.iter().enumerate() {
-            let mut max = west_max.get_mut(i).unwrap();
-            let mut item = column.borrow_mut();
-
-            if j == 0 {
-                item.visible_west();
-                *max = item.height;
-                continue;
-            }
-
-            if &item.height > max {
-                item.visible_west();
-                *max = item.height;
-                continue;
-            }
-        }
-    }
-
-    // Results
     for row in buffer.iter() {
-        for cell in row {
-            // println!("Cell = {:?}", cell);
-            print!("{}", cell.borrow().as_color());
-            if cell.borrow().is_visible() {
-                result += 1;
+        for cell in row.iter() {
+            if cell.borrow().weight > result {
+                result = cell.borrow().weight;
             }
         }
-        println!("");
     }
 
     // println!("Cols : {}, Rows : {}", column_size, row_size);
@@ -139,6 +212,7 @@ fn main() {
 #[derive(Default, Debug)]
 struct Cell {
     height: u8,
+    weight: u32,
     row: u8,
     col: u8,
     north: u8,
@@ -150,6 +224,10 @@ struct Cell {
 impl Cell {
     pub fn new(height: u8, row: u8, col: u8) -> Self {
         Cell { height, row, col, ..Default::default() }
+    }
+
+    pub fn set_weight(&mut self, weight: u32) {
+        self.weight = weight;
     }
 
     pub fn is_visible(&self) -> bool {
