@@ -16,4 +16,7 @@ fn main() {
             _ => {}
         }
     }
+
+    println!("DayOne : {dayOne}");
+    println!("DayTwo : {dayTwo}");
 }
